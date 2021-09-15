@@ -6,7 +6,7 @@ on:
 
 jobs:
   render:
-    name: Render README
+    name: Get Google Drive Data
     runs-on: macOS-latest
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
