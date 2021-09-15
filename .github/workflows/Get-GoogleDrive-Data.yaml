@@ -2,7 +2,7 @@ name: Get Google Drive Data
 
 on:
   schedule:
-    - cron: '50,55 * * * *'
+    - cron: '10,15 * * * *'
 
 jobs:
   render:
@@ -16,7 +16,7 @@ jobs:
       - name: Install CRAN packages
         run: Rscript -e 'install.packages(c("remotes", "googledrive", "dplyr", "stringr", "purrr", "here"))'
       - name: Run GoogleDrive script
-        run: Rscript -e scripts/Get-GoogleDrive-Data.R
+        run: Rscript -e ./scripts/Get-GoogleDrive-Data.R
       - name: Commit results
         run: |
           git config --local user.email "actions@github.com"
