@@ -1,0 +1,26 @@
+name: Get Google Drive Data
+
+on:
+  schedule:
+    - cron: '09 05 * * *'
+
+jobs:
+  render:
+    name: Render README
+    runs-on: macOS-latest
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: r-lib/actions/setup-r@v1
+      - name: Install CRAN packages
+        run: Rscript -e 'install.packages(c("remotes", "googledrive", "dplyr", "stringr", "purrr", "here"))'
+      - name: Run GoogleDrive script
+        run: Rscript -e scripts/Get-GoogleDrive-Data.R
+      - name: Commit results
+        run: |
+          git config --local user.email "actions@github.com"
+          git config --local user.name "GitHub Actions"
+          git add data 
+          git commit -m 'Data download. TEST' || echo "No changes to commit"
+          git push origin || echo "No changes to commit"

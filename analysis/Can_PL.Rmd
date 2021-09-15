@@ -1,0 +1,207 @@
+---
+title: "Untitled"
+author: "RN7"
+date: "9/13/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Packages 
+
+```{r message=FALSE}
+pacman::p_load(
+  dplyr, tidyr, purrr, readr,
+  stringr, tibble,
+  glue, extrafont,
+  ggplot2, magick,
+  cowplot, patchwork,
+  ggforce,
+  rvest, polite,
+  googledrive
+)
+
+options(googledrive_quiet = TRUE)
+
+extrafont::loadfonts()
+```
+
+
+* Team Totals
+* Team by Game
+* Player Totals
+* Player by Game
+
+
+# Instructions
+
+
+## Google Drive 
+
+Go to "Google Cloud Platform". Make sure you're already signed into your google account.
+
+Go to "IAM & Admin" section on the left-side menu bar.
+
+Create a new project. Give it a good name that states the purpose of your project.
+
+Create service account. Fill in service account details. 
+
+Select Role "Owner" or other as is relevant for your project.
+
+Once done click on your service account from the project page.
+
+Go to "Keys" tab and click on "ADD KEY" and then "Create new key".
+
+Make sure the key type is "JSON" and create it.
+
+Store the file in a secure space (make sure it's NOT being uploaded into a public repository on Github by .gitignore-ing the file or making it an environment variable)
+
+Go to your Google Drive API page and enable the API. URL link is: https://console.developers.google.com/apis/api/drive.googleapis.com/overview?project={YOUR-PROJECT-ID}.
+
+Have owner of folder/file share it with the service account. NOTE: Since the service account doesn't have a physical email inbox, you can't send an email with the link to it and open it from the email message. You have to make sure to share the folder/file from Google Drive directly.
+
+## Github Actions
+
+[Github Actions with R book](https://orchid00.github.io/actions_sandbox/)
+
+- Have a github repository setup with the scripts and other materials you want to use.
+- Open the repo up in RStudio and type in: `usethis::use_github_actions()`. This will do all the set up for you to get GHA running on your repository.
+- Your GHA workflows are stored in `.github/workflows` as YAML files. If you used the function above it'll create one for R-CMD-check for you. You don't need to for what we're doing since this repository isn't a package. Either delete it or modify it for what we want to do.
+- 
+
+
+# Data
+
+
+```{r}
+googledrive::drive_auth(path = "~/.R/gargle/indigo-bazaar-325705-4c1134b651dc.json")
+
+data_folder <- drive_ls(path = "Centre Circle Data & Info")
+
+data_csv <- data_folder %>% filter(str_detect(name, ".csv")) %>% arrange(name)
+
+# drive_find()
+# drive_ls()
+# 
+# cpl2019_pbg <- drive_get(id = "1CS3aJ3LDjgw8Zi2myj3oE2Bvuikvuyeg")
+# cpl2019_pbg <- drive_read_raw(file = as_id("1CS3aJ3LDjgw8Zi2myj3oE2Bvuikvuyeg"), type = "csv")
+
+data_path <- here::here("data/CanPL_data")
+
+#drive_download(file = data_csv[1,], path = paste(data_path, ))
+
+data_name <- data_csv[1,][1]
+
+#drive_download(file = as_id("1CS3aJ3LDjgw8Zi2myj3oE2Bvuikvuyeg"), path = paste0(data_path, "/", data_name))
+
+
+
+
+
+data_csv$name
+data_csv$id
+
+# g_id <- "1CS3aJ3LDjgw8Zi2myj3oE2Bvuikvuyeg"
+# data_name <- "CPLPlayerByGame2019.csv"
+
+
+get_Drive_CPL_data <- function(g_id, data_name) {
+  cat("... Trying to download", data_name, "...")
+  
+  safe_drive_download <- purrr::safely(drive_download)
+  dl_return <- safe_drive_download(file = as_id(g_id), path = paste0(data_path, "/", data_name), overwrite = TRUE)
+  
+  if (is.null(dl_return$result)) {
+    cat("\nSomething went wrong!\n")
+  } else {
+    res <- dl_return$result
+    cat("\nFile:", res$name, "download successful!", "\nPath:", res$local_path, "\n")
+  }
+}
+
+## Download all files from Google Drive!
+map2(data_csv$id, data_csv$name,
+     ~ get_Drive_CPL_data(g_id = .x, data_name = .y))
+
+beepr::beep(8)
+
+```
+
+
+do via data_csv? Then can just add final path to local when successful. Even if fail, original should remain...?
+
+
+- carve them up and upload them into thematic individual tables in a DB?
+- create reports via RMD
+- create Shiny app
+- create Twitter bot
+
+
+# Github Actions
+
+
+
+
+
+
+
+
+```{r}
+data_csv
+
+data_path
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Misc
+
+
+```{r}
+CPL_playerTotal_2020 <- readr::read_csv(file = here::here("data/CPLPlayerTotals2020.csv"))
+CPL_teamTotal_2020 <- readr::read_csv(file = here::here("data/CPLTeamTotals2020.csv"))
+CPL_playerPG_2020 <- readr::read_csv(file = here::here("data/CPLPlayerByGame2020.csv"))
+CPL_teamPG_2020 <- readr::read_csv(file = here::here("data/CPLTeamByGame2020.csv"))
+
+
+CPL_playerTotal_2021 <- readr::read_csv(file = here::here("data/CPLPlayerTotals2021.csv"))
+CPL_teamTotal_2021 <- readr::read_csv(file = here::here("data/CPLTeamTotals2021.csv"))
+CPL_playerPG_2021 <- readr::read_csv(file = here::here("data/CPLPlayerByGame2021.csv"))
+CPL_teamPG_2021 <- readr::read_csv(file = here::here("data/CPLTeamByGame2021.csv"))
+```
+
+```{r}
+glimpse(CPL_teamTotal_2020)
+```
+
+
+
+
+
+
+```{r}
+CPL_teamTotal_2020 %>% 
+  select(ShotsTotal, xGPerShot, GM, Team, NonPenxG, PenTaken) %>% 
+  mutate(NonPenShotsTotal = ShotsTotal - PenTaken,
+         NonPenXGPerShot = NonPenxG / NonPenShotsTotal)
+```
+
+
+
+
+- need to do work to flip everything and re-combine to get "against_" stats....
+
