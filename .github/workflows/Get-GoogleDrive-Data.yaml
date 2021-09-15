@@ -2,7 +2,7 @@ name: Get Google Drive Data
 
 on:
   schedule:
-    - cron: '09 05 * * *'
+    - cron: '50,55 * * * *'
 
 jobs:
   render:
