@@ -16,6 +16,6 @@ jobs:
       - name: Install CRAN packages
         run: Rscript -e 'install.packages(c("remotes", "googledrive", "dplyr", "stringr", "purrr", "here"))'
       - name: Run GoogleDrive script
-        run:
-        working-directory: scripts
-          Rscript -e Get-GoogleDrive-Data.R
+        run: |
+        source(scripts/Get-GoogleDrive-Data.R)
+        shell: Rscript {0}
