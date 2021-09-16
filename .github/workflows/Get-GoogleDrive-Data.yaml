@@ -1,8 +1,6 @@
 name: Get Google Drive Data
 
-on:
-  schedule:
-    - cron: '*/10 * * * *'
+on: [push]
 
 jobs:
   render:
