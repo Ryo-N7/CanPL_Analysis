@@ -17,5 +17,5 @@ jobs:
         run: Rscript -e 'install.packages(c("remotes", "googledrive", "dplyr", "stringr", "purrr", "here"))'
       - name: Run GoogleDrive script
         run:
-          working-directory: scripts
+        working-directory: scripts
           Rscript -e Get-GoogleDrive-Data.R
