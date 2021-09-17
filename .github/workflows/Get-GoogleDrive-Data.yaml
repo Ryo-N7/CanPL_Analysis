@@ -12,6 +12,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: r-lib/actions/setup-r@v1
+      - run: 'echo "$GCRED" > GCRED.JSON'
+        shell: bash
+        env:
+          GCRED: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
       - name: Install CRAN packages
         run: Rscript -e 'install.packages(c("remotes", "googledrive", "dplyr", "stringr", "purrr", "here"))'
       - name: Run GoogleDrive script
