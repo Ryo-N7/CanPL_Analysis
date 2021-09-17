@@ -17,8 +17,15 @@ jobs:
         env:
           GCRED: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
       - name: Install CRAN packages
-        run: Rscript -e 'install.packages(c("remotes", "googledrive", "dplyr", "stringr", "purrr", "here"))'
+        run: Rscript -e 'install.packages(c("remotes", "googledrive", "dplyr", "stringr", "purrr"))'
       - name: Run GoogleDrive script
         run: |
           source('scripts/Get-GoogleDrive-Data.R')
         shell: Rscript {0}
+      - name: Commit results
+        run: |
+          git config --local user.email "actions@github.com"
+          git config --local user.name "GitHub Actions"
+          git add data 
+          git commit -m 'Data download. TEST' || echo "No changes to commit"
+          git push origin || echo "No changes to commit"

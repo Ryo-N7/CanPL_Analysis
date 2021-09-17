@@ -3,7 +3,6 @@ library(dplyr)
 library(googledrive)
 library(purrr)
 library(stringr)
-library(here)
 options(googledrive_quiet = TRUE)
 
 ## Authenticate into googledrive service account
@@ -20,7 +19,7 @@ get_Drive_CPL_data <- function(g_id, data_name) {
   cat("... Trying to download", data_name, "...")
 
   ## Set folder for downloads
-  data_path <- here::here("data/CanPL_data")  
+  data_path <- "data/CanPL_data"
   
   # Wrap drive_download function in safely()
   safe_drive_download <- purrr::safely(drive_download)

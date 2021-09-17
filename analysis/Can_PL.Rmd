@@ -73,6 +73,12 @@ Have owner of folder/file share it with the service account. NOTE: Since the ser
 - 
 
 
+
+https://stackoverflow.com/questions/59481933/how-can-i-extract-secrets-using-github-actions/59482124#59482124
+
+
+
+
 # Data
 
 
