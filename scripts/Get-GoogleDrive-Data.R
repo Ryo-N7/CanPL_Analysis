@@ -29,6 +29,7 @@ get_Drive_CPL_data <- function(g_id, data_name) {
   
   if (is.null(dl_return$result)) {
     cat("\nSomething went wrong!\n")
+    cat(dl_return$error)
   } else {
     res <- dl_return$result
     cat("\nFile:", res$name, "download successful!", "\nPath:", res$local_path, "\n")
