@@ -7,7 +7,7 @@ library(here)
 options(googledrive_quiet = TRUE)
 
 ## Authenticate into googledrive service account
-googledrive::drive_auth(path = "~/.R/gargle/indigo-bazaar-325705-4c1134b651dc.json")
+googledrive::drive_auth()
 
 ## Find Google Drive folder 'Centre Circle Data & Info'
 data_folder <- drive_ls(path = "Centre Circle Data & Info")
