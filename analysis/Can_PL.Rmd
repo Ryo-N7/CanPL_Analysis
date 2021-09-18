@@ -41,40 +41,108 @@ extrafont::loadfonts()
 
 ## Google Drive 
 
-Go to "Google Cloud Platform". Make sure you're already signed into your google account.
+1. Go to "Google Cloud Platform". Make sure you're already signed into your google account.
 
-Go to "IAM & Admin" section on the left-side menu bar.
+2. Go to "IAM & Admin" section on the left-side menu bar.
 
-Create a new project. Give it a good name that states the purpose of your project.
+3. Create a new project. Give it a good name that states the purpose of your project.
 
-Create service account. Fill in service account details. 
+4. Create service account. Fill in service account details. 
 
-Select Role "Owner" or other as is relevant for your project.
+5. Select Role "Owner" or other as is relevant for your project.
 
-Once done click on your service account from the project page.
+6. Once done click on your service account from the project page.
 
-Go to "Keys" tab and click on "ADD KEY" and then "Create new key".
+7. Go to "Keys" tab and click on "ADD KEY" and then "Create new key".
 
-Make sure the key type is "JSON" and create it.
+8. Make sure the key type is "JSON" and create it.
 
-Store the file in a secure space (make sure it's NOT being uploaded into a public repository on Github by .gitignore-ing the file or making it an environment variable)
+9. Store the file in a secure space (make sure it's NOT being uploaded into a public repository on Github by .gitignore-ing the file or making it an environment variable)
 
-Go to your Google Drive API page and enable the API. URL link is: https://console.developers.google.com/apis/api/drive.googleapis.com/overview?project={YOUR-PROJECT-ID}.
+10. Go to your Google Drive API page and enable the API. URL link is: https://console.developers.google.com/apis/api/drive.googleapis.com/overview?project={YOUR-PROJECT-ID}.
 
-Have owner of folder/file share it with the service account. NOTE: Since the service account doesn't have a physical email inbox, you can't send an email with the link to it and open it from the email message. You have to make sure to share the folder/file from Google Drive directly.
+11. Have owner of folder/file share it with the service account. NOTE: Since the service account doesn't have a physical email inbox, you can't send an email with the link to it and open it from the email message. You have to make sure to share the folder/file from Google Drive directly.
 
 ## Github Actions
 
-[Github Actions with R book](https://orchid00.github.io/actions_sandbox/)
+[Github Actions with R book](https://orchid00.github.io/actions_sandbox/) and/or look up other people's GHA yaml files online
+
+Some other examples of using R and GHA:
+
+* [Automate Web Scraping in R with Github Actions](https://www.youtube.com/watch?v=N3NrWMxeeJQ)
+* [Automating web scraping with GitHub Actions and R: an example from New Jersey](https://www.gavinrozzi.com/post/automating-scraping-gh-actions/)
+* [R-Package GitHub Actions via {usethis} and r-lib](https://www.rostrum.blog/2020/08/09/ghactions-pkgs/)
+* [Up-to-date blog stats in your README](https://www.rostrum.blog/2021/04/14/gha-readme/)
+* [Launch an R script using github actions (R for SEO book)](https://www.rforseo.com/ressources/launch-an-r-script-using-github-actions)
+* [A Twitter bot with {rtweet} and GitHub Actions](https://www.rostrum.blog/2020/09/21/londonmapbot/)
 
 - Have a github repository setup with the scripts and other materials you want to use.
 - Open the repo up in RStudio and type in: `usethis::use_github_actions()`. This will do all the set up for you to get GHA running on your repository.
 - Your GHA workflows are stored in `.github/workflows` as YAML files. If you used the function above it'll create one for R-CMD-check for you. You don't need to for what we're doing since this repository isn't a package. Either delete it or modify it for what we want to do.
-- 
+- Note that for both private and public repositories you have a number of **free credits to use per month** but anything more is going to cost you.
+
+
+To let Github Actions workflow use your Google credentials, you need to store it in a place where GHA can retrieve it.
+
+1. Go into "Settings" in your Github repository.
+2. Click on "Secrets".
+3. Click on "New repository secret".
+4. Call it whatever you want then copy-paste the contents of the `.JSON` file into the "value" prompt.
 
 
 
-https://stackoverflow.com/questions/59481933/how-can-i-extract-secrets-using-github-actions/59482124#59482124
+
+The `Get-GoogleDrive-Data` YAML file
+
+__Basic steps__ are as follows:
+
+1. It does some set up with installing R and git check out.
+2. Saves your Google credential as a file inside the GHA workflow.
+3. Installs R packages from CRAN.
+4. Runs the R script `Get-GoogleDrive-Data.R`.
+5. Commits and pushes the data files downloaded into the Github repository.
+
+Make sure your __indentations__ for each section are correct or it won't run properly. It can be a pain in the ass but it is what it is. I usually just copy-paste someone else's YAML file that has all the steps and setups close to what I want to do and then just start editing from there.
+
+More details:
+
+`on`: "When" to run this action. Can be on git push, pull-request, etc. (use `[]` when specifying multiple conditions) or you can schedule it using cron. 
+
+`runs-on`: Which OS do you want to run this GHA on? Note that per the terms of [GHA minutes and billing](https://docs.github.com/en/billing/managing-billing-for-github-actions/about-billing-for-github-actions), using linux/ubuntu is the cheapest, then its Windows, and then Mac is the most expensive so plan accordingly.
+
+`env`: This is where you refer to the environment variables you have set up in your Github repository. Stuff like your Github Token and your Google credentials. 
+
+`steps`: 
+
+
+Now... how can I refer to my Google credentials stored as a Github secret in the `googledrive::drive_auth()` function?
+
+
+
+
+
+Unfortunately, you can't just refer to it as you would normally do in a script with `Sys.getenv()` as within the directory the GHA has created, your environment file does NOT exist as its not in the repository itself (since you never want to git commit/push a file full of all of your credentials and other environment variables to any repository on Github). 
+
+
+
+
+
+
+So the workaround I found is to basically grab the credentials stored as a secret on Github, save it as a JSON file within the GHA workflow, and then refer to **that** JSON file in the R script. See this [StackOverflow post](https://stackoverflow.com/questions/59481933/how-can-i-extract-secrets-using-github-actions/59482124#59482124) for details.
+
+So notice how I have created a JSON file called `GCRED.JSON` and then in the R script I refer to that in `googledrive::drive_auth(path = "GCRED.JSON")`. The `GCRED.JSON` file is **not** committed to the repository at the end of the workflow as we don't want to expose our google credentials to everyone in a public repository. 
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -200,10 +268,12 @@ glimpse(CPL_teamTotal_2020)
 
 
 ```{r}
-CPL_teamTotal_2020 %>% 
+CPL_teamTotal_2021 %>% 
   select(ShotsTotal, xGPerShot, GM, Team, NonPenxG, PenTaken) %>% 
   mutate(NonPenShotsTotal = ShotsTotal - PenTaken,
-         NonPenXGPerShot = NonPenxG / NonPenShotsTotal)
+         NonPenXGPerShot = NonPenxG / NonPenShotsTotal,
+         NonPenShotsP90 = NonPenShotsTotal / (GM * 90) * 90,
+         NonPenxGP90 = NonPenxG / (GM * 90) * 90)
 ```
 
 

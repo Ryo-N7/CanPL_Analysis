@@ -5,19 +5,20 @@ on: [push]
 jobs:
   Run-Google-Drive:
     name: Get Google Drive Data
-    runs-on: macOS-latest
+    runs-on: ubuntu-latest
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
     steps:
       - uses: actions/checkout@v2
       - uses: r-lib/actions/setup-r@v1
+      - name: Save Google credentials as a file in GHA working directory
       - run: 'echo "$GCRED" > GCRED.JSON'
         shell: bash
         env:
           GCRED: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
       - name: Install CRAN packages
-        run: Rscript -e 'install.packages(c("remotes", "googledrive", "dplyr", "stringr", "purrr", "fs"))'
+        run: Rscript -e 'install.packages(c("remotes", "googledrive", "purrr"))'
       - name: Run GoogleDrive R script
         run: |
           source('scripts/Get-GoogleDrive-Data.R')
