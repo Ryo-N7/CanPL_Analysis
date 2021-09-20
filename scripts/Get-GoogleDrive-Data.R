@@ -10,7 +10,8 @@ options(googledrive_quiet = TRUE)
 ## GCRED.JSON is the JSON file filled with our Google credentials that we saved inside the GHA run in the step prior to running the R script.
 ## Note that we never have a GCRED.JSON file within our own repository because we never commit that file at the end of the GHA run.
 #googledrive::drive_auth(path = "~/.R/gargle/indigo-bazaar-325705-4c1134b651dc.json")
-googledrive::drive_auth(path = "GCRED.JSON")
+googledrive::drive_auth(path = Sys.getenv("GOOGLE_APPLICATION_CREDENTIALS"))
+#googledrive::drive_auth(path = "GCRED.JSON")
 
 ## Find Google Drive folder 'Centre Circle Data & Info'
 data_folder <- drive_ls(path = "Centre Circle Data & Info")
