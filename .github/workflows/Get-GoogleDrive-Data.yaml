@@ -16,7 +16,7 @@ jobs:
         run: 'sudo apt-get -y install libcurl4-openssl-dev'
         shell: bash
       - name: Install CRAN packages
-        run: Rscript -e 'install.packages(c("remotes", "curl", "gargle", "httr", "googledrive", "purrr"))'
+        run: Rscript -e 'install.packages(c("remotes", "googledrive", "purrr"))'
       - name: Run GoogleDrive R script
         run: |
           source('scripts/Get-GoogleDrive-Data.R')

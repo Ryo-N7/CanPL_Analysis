@@ -97,8 +97,23 @@ The `Get-GoogleDrive-Data` YAML file
 __Basic steps__ are as follows:
 
 1. It does some set up with installing R and git check out.
+
+
+2. If using Ubuntu-linux then you need to install libcurl openssl to be able to install the googledrive package in later steps (mainly due to curl and httr dependency packages). You don't need to do this if you're on MacOS.
+
+      - name: Install libcurl and libssl on Linux
+        run: 'sudo apt-get -y install libcurl4-openssl-dev'
+        shell: bash
+        
+https://stackoverflow.com/questions/20923209/problems-installing-the-devtools-package        
+        
+"curl", "gargle", "httr", 
+
 2. Saves your Google credential as a file inside the GHA workflow.
-3. Installs R packages from CRAN.
+
+
+
+3. Installs R packages from CRAN. Be warned that due to some dependencies your package might not actually install even if GHA says that step was completed.
 4. Runs the R script `Get-GoogleDrive-Data.R`.
 5. Commits and pushes the data files downloaded into the Github repository.
 
