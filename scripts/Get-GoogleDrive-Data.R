@@ -1,4 +1,4 @@
-## Load packages
+## Load packages ----
 library(googledrive)
 library(purrr)
 #library(dplyr)
@@ -6,12 +6,9 @@ library(purrr)
 #library(fs)
 options(googledrive_quiet = TRUE)
 
-## Authenticate into googledrive service account
-## GCRED.JSON is the JSON file filled with our Google credentials that we saved inside the GHA run in the step prior to running the R script.
-## Note that we never have a GCRED.JSON file within our own repository because we never commit that file at the end of the GHA run.
-#googledrive::drive_auth(path = "~/.R/gargle/indigo-bazaar-325705-4c1134b651dc.json")
+## Authenticate into googledrive service account ----
+## 'GOOGLE_APPLICATION_CREDENTIALS' is what we named the Github Secret that contains the credential JSON file
 googledrive::drive_auth(path = Sys.getenv("GOOGLE_APPLICATION_CREDENTIALS"))
-#googledrive::drive_auth(path = "GCRED.JSON")
 
 ## Find Google Drive folder 'Centre Circle Data & Info'
 data_folder <- drive_ls(path = "Centre Circle Data & Info")
@@ -20,7 +17,7 @@ data_folder <- drive_ls(path = "Centre Circle Data & Info")
 data_csv <- data_folder[grepl(".csv", data_folder$name), ]
 #data_csv <- data_folder %>% filter(str_detect(name, ".csv")) %>% arrange(name)
 
-## download function
+## download function ----
 get_drive_cpl_data <- function(g_id, data_name) {
   cat("\n... Trying to download", data_name, "...\n")
   
@@ -47,7 +44,7 @@ get_drive_cpl_data <- function(g_id, data_name) {
   }
 }
 
-## Download all files from Google Drive!
+## Download all files from Google Drive! ----
 map2(data_csv$id, data_csv$name,
      ~ get_drive_cpl_data(g_id = .x, data_name = .y))
 

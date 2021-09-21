@@ -16,16 +16,21 @@ jobs:
         run: 'sudo apt-get -y install libcurl4-openssl-dev'
         shell: bash
       - name: Install CRAN packages
-        run: Rscript -e 'install.packages(c("remotes", "googledrive", "purrr"))'
+        run: Rscript -e 'install.packages(c("remotes", "googledrive", "purrr", "ggplot2"))'
       - name: Run GoogleDrive R script
         run: |
           source('scripts/Get-GoogleDrive-Data.R')
+        shell: Rscript {0}
+      - name: Run GoogleDrive R script
+        run: |
+          source('scripts/Plot-ggplot.R')
         shell: Rscript {0}
       - name: Commit results
         run: |
           git config --local user.email "actions@github.com"
           git config --local user.name "GitHub Actions"
           git add data 
-          git commit -m 'Data download. TEST' || echo "No changes to commit"
+          git add basic_plots
+          git commit -m 'Data download and create basic plot. TEST' || echo "No changes to commit"
           git push origin || echo "No changes to commit"
 
