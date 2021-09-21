@@ -1,10 +1,10 @@
-name: Get Google Drive Data
+name: Get Google Drive Data And Plot
 
 on: [push]
 
 jobs:
-  Run-Google-Drive:
-    name: Get Google Drive Data
+  Get-Google-Drive-Data-And-Plot:
+    name: Get Google Drive Data And Plot
     runs-on: ubuntu-latest
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -21,7 +21,7 @@ jobs:
         run: |
           source('scripts/Get-GoogleDrive-Data.R')
         shell: Rscript {0}
-      - name: Run GoogleDrive R script
+      - name: Run basic plot script
         run: |
           source('scripts/Plot-ggplot.R')
         shell: Rscript {0}

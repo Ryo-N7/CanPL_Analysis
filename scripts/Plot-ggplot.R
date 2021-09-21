@@ -1,4 +1,4 @@
-## Packages ----
+## Load packages ----
 library(ggplot2)
 
 ## Read data ----
