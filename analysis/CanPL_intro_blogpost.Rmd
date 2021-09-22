@@ -11,26 +11,36 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Introduction
 
-In analytics for any particular field it's not enough to be able to create output (fancy charts, dashboards, reports, etc.) but also be able to collect data in a easy, reproducible, but most importantly consistent way. This is all the more important in a field like sports where throughout the course of a season, new data is being updated to a database or some kind of folder. In this blog post I will go over how to create an ETL pipeline for Canada Premier League data hosted in a Google Drive folder (courtesy of Centre Circle & StatsPerform) using R and Github Actions. 
+In analytics for any particular field it's not enough to be able to create output (fancy charts, dashboards, reports, etc.) but also be able to collect data in a easy, reproducible, but most importantly consistent way. This is all the more important in a field like sports where throughout the course of a season, new data is being updated to a database or some kind of folder. 
+
+__In this blog post I will go over how to create an ETL pipeline for Canada Premier League data hosted in a Google Drive folder (courtesy of Centre Circle & StatsPerform) using R and Github Actions.__
 
 The simple example I'll go over will guide you on how to set up a Google service account and create a Github Actions workflow that runs a few R scripts. The end-product is a very simple ggplot2 chart using the data you downloaded using this workflow.
 
-For more analytical and visualization based blog posts have a look at other blog posts on my website or check out my [soccer_ggplots]() Github repository.
+For more analytical and visualization based blog posts have a look at other blog posts on my website or check out my [soccer_ggplots](https://github.com/Ryo-N7/soccer_ggplots) Github repository.
 
 Let's get started!
 
-# CanPL data
+# Canadian Premier League data
 
+The Canadian Premier League was started to improve the quality of soccer in Canada and alongside its inaugural launch in the 2019 season, a data initiative was started by CentreCircle in partnership with StatsPerform to provide detailed data on all CPL teams and players. 
 
-a data initiative started by 
+The data is divided into `.csv` or `.xlsx` files for:
 
+* Player Total stats
+* Player per Game stats
+* Team Total stats
+* Team per Game stats
 
+With around 147 metrics available that range from 'expected goals from set pieces', '% of passes that go forwards', 'fouls committed in atacking 3rd', etc. this initiative provides a great source of data for burgeoning analysts to hone their skills.
 
-StatsPerform and CentreCircle
+You can sign up to gain access to the Google Drive containing the data [here](). You should do so before we get started with all of this so you can familiarize yourself not only with the data but also the best practices and usage permissions as stated in the files highlighted below.
 
-
+![]()
 
 # Instructions
+
+In the following section I'll go over the steps you need to create an EPL pipeline for CPL data. This tutorial assumes you know the basics of R programming, that you already have a Github account, and can navigate your way around the platform. 
 
 
 ## Google Drive 
@@ -71,27 +81,20 @@ StatsPerform and CentreCircle
 
 ![]()
 
-10. Go to your Google Drive API page and enable the API. URL link is: https://console.developers.google.com/apis/api/drive.googleapis.com/overview?project={YOUR-PROJECT-ID}.
+10. Go to your Google Drive API page and enable the API. URL link is: `https://console.developers.google.com/apis/api/drive.googleapis.com/overview?project={YOUR-PROJECT-ID}` (fill in {YOUR-PROJECT-ID} with your project ID).
 
 ![]()
 
 11. Have owner of folder/file share it with the service account. NOTE: Since the service account doesn't have a physical email inbox, you can't send an email with the link to it and open it from the email message. You have to make sure to share the folder/file from Google Drive directly.
 
-**NOTE**: Please only do this part if you are serious about using the Canada Premier League data. Otherwise you can create your own separate folder on Google Drive, put some data in it, and share that to your Google service account and run the Github Actions workflow on that instead.
+**NOTE**: Please only do this part if you are serious about using the Canada Premier League data and that you signed up [here](https://canpl.ca/centre-circle-data/) on the Canada PL website and have read all the terms, conditions, and "best practices" sheet provided in the Google Drive folder containing the data. Otherwise you can create your own separate folder on Google Drive, put some random data in it, and share that to your Google service account and run the Github Actions workflow on that instead.
 
 ![]()
 
-## Github Actions
 
-[Github Actions](https://github.com/features/actions) is a relatively new feature introduced in late 2019 that allows you to set up workflows and take advantage of Github's VMs (Windows, Mac, Linux, or your own setup).
+## Github Actions (GHA)
 
-
-
-[Github Actions with R book](https://orchid00.github.io/actions_sandbox/) and/or look up other people's GHA yaml files online
-
-R has considerable support for using Github Actions to power your analyses. Take a look at R-Lib's GHA repository which will give you templates and commands to set up different workflows for your needs.
-
-
+[Github Actions](https://github.com/features/actions) (GHA) is a relatively new feature introduced in late 2019 that allows you to set up workflows and take advantage of Github's VMs (Windows, Mac, Linux, or your own setup). For using Github Actions with R, there's a perfectly named [Github Actions with R book](https://orchid00.github.io/actions_sandbox/) to help you out, while I have gotten a lot of mileage from looking up other people's GHA yaml files online and see how they tackled problems. R has considerable support for using Github Actions to power your analyses. Take a look at [R-Lib's GHA repository](https://github.com/r-lib/actions) which will give you templates and commands to set up different workflows for your needs.
 
 Some other examples of using R and GHA:
 
@@ -102,31 +105,46 @@ Some other examples of using R and GHA:
 * [Launch an R script using github actions (R for SEO book)](https://www.rforseo.com/ressources/launch-an-r-script-using-github-actions)
 * [A Twitter bot with {rtweet} and GitHub Actions](https://www.rostrum.blog/2020/09/21/londonmapbot/)
 
-- Have a github repository setup with the scripts and other materials you want to use.
-- Open the repo up in RStudio and type in: `usethis::use_github_actions()`. This will do all the set up for you to get GHA running on your repository.
-- Your GHA workflows are stored in `.github/workflows` as YAML files. If you used the function above it'll create one for R-CMD-check for you. You don't need to for what we're doing since this repository isn't a package. Either delete it or modify it for what we want to do.
-- Note that for both private and public repositories you have a number of **free credits to use per month** but anything more is going to cost you.
+To set up GHA in your own Github repository:
+
+1. Have a github repository setup with the scripts and other materials you want to use.
+
+2. Open the repo up in RStudio and type in: `usethis::use_github_actions()`. This will do all the set up for you to get GHA running on your repository.
+
+3. Your GHA workflows are stored in `.github/workflows` as YAML files. If you used the function above it'll create one for R-CMD-check for you. You don't need to for what we're doing since this repository isn't a package. Either delete it or modify it for what we want to do.
+
+4. Note that for both private and public repositories you have a number of **free credits to use per month** but anything more is going to cost you. See [here]() for pricing details.
 
 
-To let Github Actions workflow use your Google credentials, you need to store it in a place where GHA can retrieve it.
+To let Github Actions workflow use your Google credentials, you need to store it in a place where GHA can retrieve it during its run.
 
 1. Go into "Settings" in your Github repository.
 
+![]()
+
 2. Click on "Secrets".
+
+![]()
 
 3. Click on "New repository secret".
 
+![]()
+
 4. Call it whatever you want then copy-paste the contents of the `.JSON` file into the "value" prompt.
 
-
-
+![]()
 
 ### Workflow YAML file
 
-Within the `.github/workflows/` directory 
+Create a workflow YAML file Within the `.github/workflows/` directory. 
+
+Scheduling how often you want this to run depends on what you want to do. For the purposes of Canada PL data, it appears that there are new data updates every few days so you may want to schedule it to run once a day or every two days. It really depends. To schedule your GHA workflow you can use keywords such as "push", "pull-request", etc. or you can use `cron`. 
 
 
-__Basic steps__ are as follows:
+I use `cron` at work and the [crontab.guru](https://crontab.guru/) is a useful website to configure the specific syntax you need to schedule your GHA workflow with `cron`, whether that be 'once a day', 'every 3 hours', 'every 2 days at 3 AM', etc.
+
+
+To accomplish what we want to do, the __basic steps__ are as follows:
 
 1. It does some set up with installing R (`r-lib/actions/setup-r@v1`) and git check out (`actions/checkout@v2`).
 
@@ -141,7 +159,7 @@ __Basic steps__ are as follows:
 
 6. Commits and pushes the data files downloaded into the Github repository.
 
-Make sure your __indentations__ for each section are correct or it won't run properly. It can be a pain in the ass but it is what it is. I usually just copy-paste someone else's YAML file that has all the steps and setups close to what I want to do and then just start editing from there.
+Make sure your __indentations__ for each section are correct or it won't run properly. It can be an annoyance to figure out but it is what it is. I usually just copy-paste someone else's YAML file that has all the steps and setups close to what I want to do and then just start editing from there.
 
 More details:
 
@@ -153,22 +171,17 @@ More details:
 
 `steps`: This is where you outline the specific steps your workflow should take. 
 
+An __important question__ is: How can I refer to my Google credentials stored as a Github secret in the `googledrive::drive_auth()` function that will be used in the R script for authentication?
 
-Now... how can I refer to my Google credentials stored as a Github secret in the `googledrive::drive_auth()` function?
-
-Because you specified the Github secret as "GOOGLE_AUTHENTICATION_CREDENTIALS", this is the name you need to refer to when using `Sys.getenv()` to grab that environment variable.
-
-
+As you specified the Github secret in the previous section as "GOOGLE_AUTHENTICATION_CREDENTIALS", you can use that name as the reference for the `Sys.getenv()` function so that it can grab the environment variable. You'll see how that works in the next section.
 
 Remember that you need to "git pull" your repo whenever so that you have the latest data to work with
 
 This is because when it downloads and commits the data into your github repo, it is only updating it online on github and not on your local computer. So you need to pull all the new stuff in first or you'll be working with unupdated data from the last time you pulled.
 
-
-
 ## R Scripts
 
-For both of these scripts I tried using the minimal amount of packages to reduce dependencies that I would have to download and install as part of the GHA workflow. You could easily use a `for` loop instead of `purrr::map2()` and base R plotting instead of {ggplot2} if you want to go even further (I attempted this in `scripts/Plot-BaseR.R` but it was just quicker doing it with ggplot2).
+Now that we've done a lot of the setup, we can actually start doing stuff in R. For both of these scripts I tried using the minimal amount of packages to reduce dependencies that GHA would have to download and install as part of the workflow run. You could easily use a `for` loop instead of `purrr::map2()` and base R plotting instead of {ggplot2} if you want to go even further (I attempted this in `scripts/Plot-BaseR.R` but it was just quicker doing it with ggplot2).
 
 ### `Get-GoogleDrive-Data.R`
 
@@ -201,9 +214,23 @@ For both of these scripts I tried using the minimal amount of packages to reduce
 
 ![]()
 
+# Output
+
+Once a workflow is successful, you should be able to see that another `git commit` was made that saved new data downloaded from the CanPL google drive folder into your `data/` folder while the simple plot of xG data was saved and commited in the `basic_plots` folder.
+
+![]()
+
+![]()
+
 # Conclusion
 
+It can be a daunting process to set all this up, especially the Google service account stuff. It was the same for me, I had to go through the documentation provided by the {googledrive} R package quite a bit along with a lot of googling things separately. 
 
+* [{googledrive} R package documentation](https://googledrive.tidyverse.org/articles/index.html)
+* [Non-interactive authentication docs from the {gargle} R package](https://gargle.r-lib.org/articles/non-interactive-auth.html)
+
+
+There are many things you can do with this kind of set up, including but not limited to: 
 
 * Create a Twitter bot to post your visualizations
 * Create a parameterized RMarkdown report
@@ -212,6 +239,6 @@ For both of these scripts I tried using the minimal amount of packages to reduce
 * Create your own separate database and upload new data into it after some cleaning steps
 * Etc.
 
-
+**Some** of these are things which I hope to talk about in **future blogposts**, so stay tuned!
 
 
