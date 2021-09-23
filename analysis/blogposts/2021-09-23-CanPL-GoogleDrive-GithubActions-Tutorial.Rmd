@@ -1,8 +1,8 @@
 ---
-title: "Untitled"
-author: "RN7"
-date: "9/21/2021"
-output: html_document
+always_allow_html: yes
+output: 
+  md_document:
+    variant: markdown_github
 ---
 
 # Introduction
@@ -19,7 +19,7 @@ Let's get started!
 
 # Canadian Premier League data
 
-The Canadian Premier League was started to improve the quality of soccer in Canada and alongside its inaugural launch in the 2019 season, a data initiative was started by CentreCircle in partnership with StatsPerform to provide detailed data on all CPL teams and players. 
+The Canadian Premier League was started to improve the quality of soccer in Canada and alongside its inaugural launch in the 2019 season, a data initiative was started by __CentreCircle__ in a partnership with __StatsPerform__ to provide detailed data on all CPL teams and players. 
 
 The data is divided into `.csv` or `.xlsx` files for:
 
@@ -28,13 +28,15 @@ The data is divided into `.csv` or `.xlsx` files for:
 * Team Total stats
 * Team per Game stats
 
-With around 147 metrics available that range from 'expected goals from set pieces', '% of passes that go forwards', 'fouls committed in attacking 3rd', etc. this initiative provides a great source of data for burgeoning analysts to hone their skills.
+With around 147 metrics available that range from 'expected goals from set pieces', '% of passes that go forwards', 'fouls committed in attacking 3rd', etc. this initiative provides a great source of data for both beginner and expert analysts to hone their skills.
 
 You can sign up to gain access to the Google Drive containing the data [here](https://canpl.ca/centre-circle-data/). You should do so before we get started with all of this so you can familiarize yourself not only with the data but also the best practices and usage permissions as stated in the files.
 
 <img src="../assets/2021-09-23-CanPL-GoogleDrive-GithubActions-Tutorial_files/CC-data-signup.PNG" style="display: block; margin: auto;" width = "650" />
 
-# Instructions
+So, it's nice that we have all this data in a Google Drive folder and that it's being updated every few days by Centre Circle. However, it's a bit annoying to have to manually re-download the data files after every update, save it in the proper folder, and only then finally get down to analyzing the data. This is where automation can help, in this case __Github Actions__ and the __{googledrive}__ R package can be utilized to create an ETL pipeline to automate the data loading/saving for you. 
+
+# Guide
 
 In the following section I'll go over the steps you need to create an EPL pipeline for CPL data. This tutorial assumes you know the basics of R programming, that you already have a Github account, and can navigate your way around the platform. 
 
@@ -59,11 +61,12 @@ It can be a daunting process to set all this up, especially the Google service a
 
 4. Select Role "Owner" or other as is relevant for your project.
 
-<img src="../assets/2021-09-23-CanPL-GoogleDrive-GithubActions-Tutorial_files/google-auth/step4a.PNG" style="display: block; margin: auto;" width = "550" />
+<p float="left" align="center">
+<img src="../assets/2021-09-23-CanPL-GoogleDrive-GithubActions-Tutorial_files/google-auth/step4a.PNG" width="49%" />
+<img src="../assets/2021-09-23-CanPL-GoogleDrive-GithubActions-Tutorial_files/google-auth/step4b.PNG" width="49%" />
+</p>
 
-<img src="../assets/2021-09-23-CanPL-GoogleDrive-GithubActions-Tutorial_files/google-auth/step4b.PNG" style="display: block; margin: auto;" width = "550" />
-
-5. Once you're done, click on your newly created service account from the project page.
+5. Once you're done, click on your newly created service account from the project page. The email you see listed for your service account is something you'll need later so keep a copy of that address somewhere.
 
 <img src="../assets/2021-09-23-CanPL-GoogleDrive-GithubActions-Tutorial_files/google-auth/step5.PNG" style="display: block; margin: auto;" width = "550" />
 
@@ -83,9 +86,9 @@ It can be a daunting process to set all this up, especially the Google service a
 
 <img src="../assets/2021-09-23-CanPL-GoogleDrive-GithubActions-Tutorial_files/google-auth/step9.PNG" style="display: block; margin: auto;" width = "550" />
 
-10. Ask the owner of folder/file to share it with the service account by right-clicking on the folder/file in Google Drive and click the 'Share' button (If it's your own folder this is trivial, otherwise Steven Scott is the owner of CanPL data). 
+10. Ask the owner of folder/file to share it with the service account by right-clicking on the folder/file in Google Drive and click the 'Share' button (Steven Scott is the owner of CanPL data). Use the email address you see in the __"client_email"__ section of your Google credential `JSON` file as the account to add.
 
-__NOTE__: Since the service account doesn't have a physical email inbox, you can't send an email with the link to it and open the file/folder from the email message. You have to make sure to 'share'/'ask to share' the folder/file from Google Drive directly.
+__NOTE__: Since the service account doesn't have a physical email inbox, you can't send an email to it with the share link and open the file/folder from the email message. You have to make sure to 'share'/'ask to share' the folder/file from Google Drive directly.
 
 **NOTE**: Please only do this part if you are __serious__ about using the Canada Premier League data and that you signed up [here](https://canpl.ca/centre-circle-data/) on the Canada PL website and have read all the terms, conditions, and "best practices" sheet provided in the Google Drive folder containing the data. Otherwise you can create your own separate folder on Google Drive, put some random data in it, and share that to your Google service account and run the Github Actions workflow on that instead.
 
@@ -106,42 +109,42 @@ Some other examples of using R and GHA:
 
 To set up GHA in your own Github repository:
 
-1. Have a github repository setup with the scripts and other materials you want to use. Here is how I set up mine, the folders are important as we're going to be referring to them to save our data and output. Name yours however you wish, just remember to refer to them properly in the R scripts you use.
+1. Have a Github repository set up with the scripts and other materials you want to use. Here is how I set up mine, the folders are important as we're going to be referring to them to save our data and output. Name yours however you wish, just remember to refer to them properly in the R scripts or YAML files you use.
 
 <img src="../assets/2021-09-23-CanPL-GoogleDrive-GithubActions-Tutorial_files/git-repo.PNG" style="display: block; margin: auto;" width = "650" />
 
-2. Open the repo up in RStudio and type in: `usethis::use_github_actions()`. This will do all the set up for you to get GHA running on your repository.
+2. Open the repo up in RStudio and type in: `usethis::use_github_actions()`. This will do all the set up for you to get GHA running in your repository.
 
-3. Your GHA workflows are stored in `.github/workflows` as YAML files. If you used the function above it'll create one for R-CMD-check for you. You don't need to for what we're doing since this repository isn't a package. Either delete it or modify it for what we want to do, we'll be working on the YAML files in the next section.
+3. Your GHA workflows are stored in the `.github/workflows` folder as YAML files. If you used the function above it'll create one for `R-CMD-check` for you. You don't need that for what we're doing since this repository isn't an R package. Either delete it or modify it for what we want to do. We'll be working on the YAML files in the next section.
 
 4. Note that for both private and public repositories you have a number of **free credits to use per month** but anything more is going to cost you. See [here](https://docs.github.com/en/billing/managing-billing-for-github-actions/about-billing-for-github-actions) for pricing details.
 
-To let Github Actions workflow use your Google credentials, you need to store it in a place where GHA can retrieve it during its run.
+To let Github Actions workflow use your Google credentials, you need to store it in a place where GHA can retrieve it when its running.
 
 1. Go into "Settings" in your Github repository, then "Secrets", and then "New repository secret".
 
 <img src="../assets/2021-09-23-CanPL-GoogleDrive-GithubActions-Tutorial_files/gh-secrets-settings.PNG" style="display: block; margin: auto;" width = "650" />
 
-2. Call it `GOOGLE_AUTHENTICATION_CREDENTIALS` or whatever you want (just make sure its __consistent__ between what you call it here and in the workflow YAML file). Then copy-paste the __contents__ of the Google credential key `.JSON` file (the one you downloaded earlier) into the "value" prompt.
+2. Call it `GOOGLE_AUTHENTICATION_CREDENTIALS` or whatever you want (just make sure its __consistent__ between what you call it here and in the workflow YAML file or R script). Then copy-paste the __contents__ of the Google credential key `.JSON` file (the one you downloaded earlier) into the "value" prompt. I believe you need to include the `{}` brackets as well.
 
 <img src="../assets/2021-09-23-CanPL-GoogleDrive-GithubActions-Tutorial_files/new-secret.PNG" style="display: block; margin: auto;" width = "650" />
 
 ### Workflow YAML file
 
-Create a workflow YAML file Within the `.github/workflows/` directory. 
+Now we need to create a workflow YAML file within the `.github/workflows/` directory. This is the file which gives GHA instructions on what to do.
 
-Scheduling how often you want this to run depends on what you want to do. For the purposes of Canada PL data, it appears that there are new data updates every few days so you may want to schedule it to run once a day or every two days. It really depends. To schedule your GHA workflow you can use keywords such as "push", "pull-request", etc. or you can use `cron`. 
+First, you want to figure out how often you want this GHA to run. It really depends on what you want to do with GHA. For the purposes of the CPL data project, it appears that there are new data updates every few days so you may want to schedule it to run maybe every two days. It really depends. To schedule your GHA workflow you can use keywords such as "push", "pull-request", etc. or you can use `cron`. 
 
 The [crontab.guru](https://crontab.guru/) is a useful website to configure the specific syntax you need to schedule your GHA workflow with `cron`, whether that be 'once a day', 'every 3 hours', 'every 2 days at 3 AM', etc. If you still don't know, try googling "cron run every 6 hours" or whatever.
 
 To accomplish what we want to do, the __basic steps__ are as follows:
 
-1. It does some set up with installing R (`r-lib/actions/setup-r@v1`) and git check out (`actions/checkout@v2`).
+1. It does some set up with installing R itself (`r-lib/actions/setup-r@v1`) and git check out (`actions/checkout@v2`).
 
 2. If you're using `Ubuntu-Linux` as the VM running this workflow, then you need to install `libcurl openssl` to be able to install the {googledrive} package in later steps (mainly due to curl and httr dependency R packages, see this [StackOverflow post](https://stackoverflow.com/questions/20923209/problems-installing-the-devtools-package        
 ) for details). You don't need to do this if you're using `MacOS` as the VM.
 
-3. Installs R packages from CRAN. Be warned that due to some dependencies your package might not actually install even if GHA says that step was completed.
+3. Installs R packages from CRAN. Be warned that due to some dependencies, the packages you list here might not actually install even if GHA says that step was completed. This part tripped me up quite a bit until I figured out the `libcurl openssl` thing. Also note that there **should** be a way to __cache__ the R packages you're installing but so far I've only found solutions when the Github repo you're using is also an R package as well. This part usually takes quite long (and in this simplified example I'm only installing 3 packages!) so if you really want to do something with a lot of dependencies I suggest you research this a lot more or you will use up your GHA minutes __quite quickly__!
 
 4. Runs the R script `Get-GoogleDrive-Data.R`.
 
@@ -149,15 +152,17 @@ To accomplish what we want to do, the __basic steps__ are as follows:
 
 6. Commits and pushes the data files downloaded into the Github repository.
 
+<img src="../assets/2021-09-23-CanPL-GoogleDrive-GithubActions-Tutorial_files/google-yaml.PNG" style="display: block; margin: auto;" width = "650" />
+
 Make sure your __indentations__ for each section are correct or it won't run properly. It can be an annoyance to figure out but it is what it is. I usually just copy-paste someone else's YAML file that has steps and setups close to what I want to do and then just start editing from there.
 
 More details:
 
-- `on`: "When" to run this action. Can be on git push, pull-request, etc. (use `[]` when specifying multiple conditions) or you can schedule it using cron. 
+- `on`: "When" to run this action. Can be on git push, pull-request, etc. (use `[]` when specifying multiple conditions) or you can schedule it using cron as we talked about earlier. 
 
-- `runs-on`: Which OS do you want to run this GHA on? Note that per the terms of [GHA minutes and billing](https://docs.github.com/en/billing/managing-billing-for-github-actions/about-billing-for-github-actions), using Ubuntu-Linux is the cheapest, then its Windows, and then Mac is the most expensive so plan accordingly.
+- `runs-on`: Which OS do you want to run this GHA on? Note that per the terms of [GHA minutes and billing](https://docs.github.com/en/billing/managing-billing-for-github-actions/about-billing-for-github-actions), using Ubuntu-Linux is the cheapest, then its Windows, and MacOS is the most expensive so plan accordingly.
 
-- `env`: This is where you refer to the environment variables you have set up in your Github repository. Stuff like your Github Token and your Google credentials. 
+- `env`: This is where you refer to the environment variables you have set up in your Github repository. Stuff like your Github Token and your Google service account credentials. 
 
 - `steps`: This is where you outline the specific steps your workflow should take. 
 
@@ -214,7 +219,7 @@ Once a workflow is successful, you should be able to see that another `git commi
 
 Hopefully this was a helpful guide for grabbing Canada Premier League soccer data automatically with Github Actions. There is a lot to learn as there are many different moving parts to make this work. I tried to put links to a lot of the documentation and blog posts that helped me through so those should be of use to you as well.
 
-There are many things you can do with this kind of set up, including but not limited to: 
+There are many things you can do by extending the very basic ETL set up we created in this blog post, including but not limited to: 
 
 * Create a Twitter bot to post your visualizations!
 * Create a parameterized RMarkdown report!

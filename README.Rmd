@@ -14,23 +14,9 @@ knitr::opts_chunk$set(
 # CanPL_Analysis
 
 <!-- badges: start -->
-[![R-CMD-check](https://github.com/Ryo-N7/CanPL_Analysis/workflows/R-CMD-check/badge.svg)](https://github.com/Ryo-N7/CanPL_Analysis/actions)
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/O4O342A2A)
 <!-- badges: end -->
 
-The goal of CanPL_Analysis is to ...
+The goal of `CanPL_Analysis` is to provide some examples for creating a ETL pipeline with the {googledrive} package and Github Actions.
 
-What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
-
-```{r cars}
-summary(cars)
-```
-
-You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date. `devtools::build_readme()` is handy for this. You could also use GitHub Actions to re-render `README.Rmd` every time you push. An example workflow can be found here: <https://github.com/r-lib/actions/tree/master/examples>.
-
-You can also embed plots, for example:
-
-```{r pressure, echo = FALSE}
-plot(pressure)
-```
-
-In that case, don't forget to commit and push the resulting figure files, so they display on GitHub.
+Please check out the blog post for full instructions!
