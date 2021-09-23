@@ -1,6 +1,8 @@
 name: Get Google Drive Data And Plot
 
-on: [push]
+on:
+  schedule:
+    - cron: '0 2 */3 * *'
 
 jobs:
   Get-Google-Drive-Data-And-Plot:
