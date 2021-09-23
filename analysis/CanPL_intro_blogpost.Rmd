@@ -42,50 +42,48 @@ You can sign up to gain access to the Google Drive containing the data [here]().
 
 In the following section I'll go over the steps you need to create an EPL pipeline for CPL data. This tutorial assumes you know the basics of R programming, that you already have a Github account, and can navigate your way around the platform. 
 
+Regardless of the instructions below you're going to have to Google a lot and try things out yourself. If you check out this github repo you'll see that I made a ton of commits just to get this working and whether you just want to copy what I did with the CanPL data or something else entirely you're going to have to keep trying when things fail too. 
+
 
 ## Google Drive 
 
-1. Go to "Google Cloud Platform". Make sure you're already signed into your google account.
+1. Make sure you're already signed into your google account and go to ["Google Cloud Platform/Console"](https://console.cloud.google.com/). On the left-side menu bar go to the "IAM & Admin" section.
 
 ![]()
 
-2. Go to "IAM & Admin" section on the left-side menu bar.
+2. Scroll down to find the __Create a project__ button in the menu bar. Give it a good name that states the purpose of your project.
 
 ![]()
 
-3. Create a new project. Give it a good name that states the purpose of your project.
+3. Create service account. Fill in service account details. 
 
 ![]()
 
-4. Create service account. Fill in service account details. 
+4. Select Role "Owner" or other as is relevant for your project.
 
 ![]()
 
-5. Select Role "Owner" or other as is relevant for your project.
+5. Once done click on your service account from the project page.
 
 ![]()
 
-6. Once done click on your service account from the project page.
+6. Go to "Keys" tab and click on "ADD KEY" and then "Create new key".
 
 ![]()
 
-7. Go to "Keys" tab and click on "ADD KEY" and then "Create new key".
+7. Make sure the key type is "JSON" and create it.
 
 ![]()
 
-8. Make sure the key type is "JSON" and create it.
+8. Store the file in a secure space (make sure it's NOT being uploaded into a public repository on Github by .gitignore-ing the file or making it an environment variable in R with `usethis::edit_r_environ()`)
 
 ![]()
 
-9. Store the file in a secure space (make sure it's NOT being uploaded into a public repository on Github by .gitignore-ing the file or making it an environment variable)
+9. Go to your Google Drive API page and enable the API. URL link is: `https://console.developers.google.com/apis/api/drive.googleapis.com/overview?project={YOUR-PROJECT-ID}` (fill in {YOUR-PROJECT-ID} with your project ID).
 
 ![]()
 
-10. Go to your Google Drive API page and enable the API. URL link is: `https://console.developers.google.com/apis/api/drive.googleapis.com/overview?project={YOUR-PROJECT-ID}` (fill in {YOUR-PROJECT-ID} with your project ID).
-
-![]()
-
-11. Have owner of folder/file share it with the service account. NOTE: Since the service account doesn't have a physical email inbox, you can't send an email with the link to it and open it from the email message. You have to make sure to share the folder/file from Google Drive directly.
+10. Have owner of folder/file share it with the service account. NOTE: Since the service account doesn't have a physical email inbox, you can't send an email with the link to it and open it from the email message. You have to make sure to share the folder/file from Google Drive directly.
 
 **NOTE**: Please only do this part if you are serious about using the Canada Premier League data and that you signed up [here](https://canpl.ca/centre-circle-data/) on the Canada PL website and have read all the terms, conditions, and "best practices" sheet provided in the Google Drive folder containing the data. Otherwise you can create your own separate folder on Google Drive, put some random data in it, and share that to your Google service account and run the Github Actions workflow on that instead.
 
@@ -107,7 +105,9 @@ Some other examples of using R and GHA:
 
 To set up GHA in your own Github repository:
 
-1. Have a github repository setup with the scripts and other materials you want to use.
+1. Have a github repository setup with the scripts and other materials you want to use. Here is how I set up mine, the folders are important as we're going to be referring to them to save our data and output. Name yours however you wish, just remember to refer to them properly.
+
+![]()
 
 2. Open the repo up in RStudio and type in: `usethis::use_github_actions()`. This will do all the set up for you to get GHA running on your repository.
 
@@ -140,9 +140,7 @@ Create a workflow YAML file Within the `.github/workflows/` directory.
 
 Scheduling how often you want this to run depends on what you want to do. For the purposes of Canada PL data, it appears that there are new data updates every few days so you may want to schedule it to run once a day or every two days. It really depends. To schedule your GHA workflow you can use keywords such as "push", "pull-request", etc. or you can use `cron`. 
 
-
 I use `cron` at work and the [crontab.guru](https://crontab.guru/) is a useful website to configure the specific syntax you need to schedule your GHA workflow with `cron`, whether that be 'once a day', 'every 3 hours', 'every 2 days at 3 AM', etc.
-
 
 To accomplish what we want to do, the __basic steps__ are as follows:
 
