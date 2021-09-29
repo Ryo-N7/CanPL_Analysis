@@ -24,8 +24,6 @@ pacman::p_load(
   googledrive
 )
 
-options(googledrive_quiet = TRUE)
-
 extrafont::loadfonts()
 ```
 
@@ -41,6 +39,8 @@ extrafont::loadfonts()
 
 
 ```{r}
+
+options(googledrive_quiet = TRUE)
 googledrive::drive_auth(path = "~/.R/gargle/indigo-bazaar-325705-4c1134b651dc.json")
 
 data_folder <- drive_ls(path = "Centre Circle Data & Info")
@@ -170,4 +170,44 @@ CPL_teamTotal_2021 %>%
 
 
 - need to do work to flip everything and re-combine to get "against_" stats....
+
+
+
+
+
+# League table
+
+```{r}
+library(gt)
+```
+
+
+```{r}
+cpl_team_total_2021 <- read.csv(file = "data/CPLTeamTotals2021.csv")
+
+glimpse(cpl_team_total_2021)
+```
+
+```{r}
+cpl_team_pergame_2021 <- read.csv(file = here::here("data/CPLTeamByGame2021.csv"))
+
+glimpse(cpl_team_pergame_2021)
+```
+
+
+
+```{r}
+row1 <- cpl_team_pergame_2021 %>% slice_head(n = 2)
+
+row1 %>% select(teamFullName, teamAbbrevName, opponentFullName, Win, Draw, Loss, Home, Away, Week, Result, GM, Date, Week) 
+```
+
+GM and Week are useless... number games by order of `Date`
+
+```{r}
+rowED <- cpl_team_pergame_2021 %>% filter(teamFullName == "Edmonton")
+
+rowED %>% select(teamFullName, teamAbbrevName, opponentFullName, Win, Draw, Loss, Home, Away, Result, Date) 
+```
+
 
