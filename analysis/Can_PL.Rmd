@@ -223,7 +223,7 @@ rowED %>% select(teamFullName, teamAbbrevName, opponentFullName, Win, Draw, Loss
 ```{r}
 game1 <- cpl_team_pergame_2021 %>% 
   filter(gameId == "18o1gqawfartt7bvr61uhr40k") %>% 
-  select(teamFullName, ExpG, ExpA, PassesIntoBox, Home, Away)
+  select(teamFullName, ExpG, ExpA, PassesIntoBox, Home, Away, gameId)
 ```
 
 
@@ -242,11 +242,123 @@ game1 %>%
   select(-teamFullName) %>% 
   ## set everything as character while we combine, BE CAREFUL how you handle the data in future steps
   mutate(across(everything(), as.character)) %>% 
-  pivot_longer(cols = ExpG:Away) %>% 
-  unite(column_name, name, rid, home_team, away_team, sep = "--") %>% 
-  pivot_wider(names_from = column_name, values_from = value) 
+  pivot_longer(cols = ExpG:gameId) %>% 
+  unite(column_name, name, rid, sep = "--") %>% 
+  unite(column_name, column_name, home_team, away_team, sep = "--", remove = FALSE) %>% 
+  pivot_wider(names_from = column_name, values_from = value) %>% View()
 ```
 
+https://stackoverflow.com/questions/41260102/merging-multiple-rows-into-single-row
+
+```{r}
+game1 %>% 
+  #group_by(gameId) %>% 
+  mutate(rid = row_number(),
+         home_team = case_when(
+           Home == "true" ~ teamFullName,
+           TRUE ~ NA_character_
+         ),
+         away_team = case_when(
+           Away == "true" ~ teamFullName,
+           TRUE ~ NA_character_
+         ),
+         Home = case_when(
+           Home == "true" ~ "Home",
+           TRUE ~ NA_character_
+         ),
+         Away = case_when(
+           Away == "true" ~ "Away",
+           TRUE ~ NA_character_
+         )) %>% 
+  #select(-teamFullName) %>% 
+  ## set everything as character while we combine, BE CAREFUL how you handle the data in future steps
+  mutate(across(everything(), as.character)) %>% 
+  pivot_longer(cols = -c(rid, home_team, away_team)) %>% 
+  unite(column_name, name, rid, home_team, away_team, sep = "--") %>% 
+  #unite(column_name, column_name, home_team, away_team, sep = "--", remove = FALSE) %>% 
+  pivot_wider(names_from = column_name, values_from = value) %>% View()
+```
+
+
+
+```{r}
+cpl_team_pergame_2021 %>% 
+  select(contains("Id", ignore.case = FALSE)) %>% 
+  names()
+```
+
+
+
+```{r}
+game1 %>% 
+  #group_by(gameId) %>% 
+  mutate(rid = row_number(),
+         home_team = case_when(
+           Home == "true" ~ teamFullName,
+           TRUE ~ NA_character_
+         ),
+         away_team = case_when(
+           Away == "true" ~ teamFullName,
+           TRUE ~ NA_character_
+         ),
+         Home = case_when(
+           Home == "true" ~ "Home",
+           TRUE ~ NA_character_
+         ),
+         Away = case_when(
+           Away == "true" ~ "Away",
+           TRUE ~ NA_character_
+         )) %>% 
+  ## set everything as character while we combine, BE CAREFUL how you handle the data in future steps
+  mutate(across(everything(), as.character)) %>% 
+  pivot_longer(cols = -c(rid, Home, Away)) %>% 
+  unite(column_name, name, rid, Home, Away, sep = "--") %>% 
+  #unite(column_name, column_name, home_team, away_team, sep = "--", remove = FALSE) %>% 
+  pivot_wider(names_from = column_name, values_from = value) %>% View()
+
+
+
+game1 %>% 
+  #group_by(gameId) %>% 
+  mutate(#rid = row_number(),
+         home_team = case_when(
+           Home == "true" ~ teamFullName,
+           TRUE ~ NA_character_
+         ),
+         away_team = case_when(
+           Away == "true" ~ teamFullName,
+           TRUE ~ NA_character_
+         ),
+         Home = case_when(
+           Home == "true" ~ "Home",
+           TRUE ~ NA_character_
+         ),
+         Away = case_when(
+           Away == "true" ~ "Away",
+           TRUE ~ NA_character_
+         )) %>% 
+  ## set everything as character while we combine, BE CAREFUL how you handle the data in future steps
+  mutate(across(everything(), as.character)) %>% 
+  ## pivot and then unite so column names are appended with home or away: xG_home, xG_away, etc.
+  pivot_longer(cols = -c(Home, Away)) %>% 
+  unite(column_name, name, Home, Away, sep = "--") %>% 
+  ## clean-up the column names
+  mutate(column_name = str_squish(column_name),
+         column_name = str_replace_all(column_name, "--NA--", "--"),
+         column_name = str_replace_all(column_name, "--NA", "")) %>% 
+  filter(!column_name %in% c("away_team--Home", "home_team--Away")) %>% 
+  ## we only ever need 1 col for each of the "Id" vars
+  arrange(column_name) %>% 
+  #unite(column_name, column_name, home_team, away_team, sep = "--", remove = FALSE) %>% 
+  pivot_wider(names_from = column_name, values_from = value) %>% View()
+```
+
+
+
+
+thenfrom each col_name, get rid of "NA" and "gameId"
+
+could just re-add gameId based on the home-away team names? separately?
 
 ```{r}
 anscombe
