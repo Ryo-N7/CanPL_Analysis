@@ -211,3 +211,50 @@ rowED %>% select(teamFullName, teamAbbrevName, opponentFullName, Win, Draw, Loss
 ```
 
 
+- group by gameId
+- two rows per each game --- home and away team
+- change column names to `home_*` and `away_*`
+- combine into one row per game
+- figure out for vs. against stats from that configuration of data
+
+
+
+
+```{r}
+game1 <- cpl_team_pergame_2021 %>% 
+  filter(gameId == "18o1gqawfartt7bvr61uhr40k") %>% 
+  select(teamFullName, ExpG, ExpA, PassesIntoBox, Home, Away)
+```
+
+
+```{r}
+game1 %>% 
+  #group_by(gameId) %>% 
+  mutate(rid = row_number(),
+         home_team = case_when(
+           Home == "true" ~ teamFullName,
+           TRUE ~ NA_character_
+         ),
+         away_team = case_when(
+           Away == "true" ~ teamFullName,
+           TRUE ~ NA_character_
+         )) %>% 
+  select(-teamFullName) %>% 
+  ## set everything as character while we combine, BE CAREFUL how you handle the data in future steps
+  mutate(across(everything(), as.character)) %>% 
+  pivot_longer(cols = ExpG:Away) %>% 
+  unite(column_name, name, rid, home_team, away_team, sep = "--") %>% 
+  pivot_wider(names_from = column_name, values_from = value) 
+```
+
+
+```{r}
+anscombe
+anscombe %>%
+ pivot_longer(everything(),
+   names_to = c(".value", "set"),
+   names_pattern = "(.)(.)"
+ )
+```
+
+
