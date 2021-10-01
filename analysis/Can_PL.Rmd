@@ -192,8 +192,10 @@ glimpse(cpl_team_total_2021)
 cpl_team_pergame_2021 <- read.csv(file = here::here("data/CPLTeamByGame2021.csv"))
 
 glimpse(cpl_team_pergame_2021)
-```
 
+cpl_team_pergame_2021 %>% select(sort(current_vars())) %>% glimpse()
+```
+`.1` are duplicates...
 
 
 ```{r}
@@ -315,8 +317,13 @@ game1 %>%
   unite(column_name, name, rid, Home, Away, sep = "--") %>% 
   #unite(column_name, column_name, home_team, away_team, sep = "--", remove = FALSE) %>% 
   pivot_wider(names_from = column_name, values_from = value) %>% View()
+```
 
 
+
+
+
+```{r}
 ## DONE
 game1 %>% 
   #group_by(gameId) %>% 
@@ -354,8 +361,10 @@ game1 %>%
 ```
 
 
-
 - attempt ALL games , grouping?
+
+GROUP AND NEST?
+
 
 ```{r}
 cpl_team_pergame_2021 %>% 
@@ -397,17 +406,132 @@ cpl_team_pergame_2021 %>%
 
 
 
+
+
+```{r}
+elongate_per_game <- function(data) {
+  elon_df <- data %>% 
+      mutate(#rid = row_number(),
+         home_team = case_when(
+           Home == "true" ~ teamFullName,
+           TRUE ~ NA_character_
+         ),
+         away_team = case_when(
+           Away == "true" ~ teamFullName,
+           TRUE ~ NA_character_
+         ),
+         Home = case_when(
+           Home == "true" ~ "Home",
+           TRUE ~ NA_character_
+         ),
+         Away = case_when(
+           Away == "true" ~ "Away",
+           TRUE ~ NA_character_
+         )) %>% 
+  ## set everything as character while we combine, BE CAREFUL how you handle the data in future steps
+  mutate(across(everything(), as.character)) %>% 
+  ## pivot and then unite so column names are appended with home or away: xG_home, xG_away, etc.
+  pivot_longer(cols = -c(Home, Away)) %>% 
+  unite(column_name, name, Home, Away, sep = "--") %>% 
+  ## clean-up the column names
+  mutate(column_name = str_squish(column_name),
+         column_name = str_replace_all(column_name, "--NA--", "--"),
+         column_name = str_replace_all(column_name, "--NA", "")) %>% 
+  filter(!column_name %in% c("away_team--Home", "home_team--Away")) %>% 
+  ## we only ever need 1 col for each of the "Id" vars
+  arrange(column_name) %>% 
+  #unite(column_name, column_name, home_team, away_team, sep = "--", remove = FALSE) %>% 
+  pivot_wider(names_from = column_name, values_from = value)
+  
+  return(elon_df)
+}
+```
+
+
+```{r}
+cpl_permatch <- cpl_team_pergame_2021 %>% 
+  group_by(gameId) %>% 
+  nest() %>% 
+  mutate(data2 = map(data, ~ elongate_per_game(data = .x))) %>% 
+  ungroup()
+
+```
+
+```{r}
+cpl_permatch[[3]][[1]] %>% arrange() %>% View()
+```
+
+```{r}
+cpl_permatch_df <- cpl_permatch %>% 
+  select(-data) %>% 
+  unnest(cols = c(data2))
+```
+
+
+take out the SINGLE value cols, then join them back in using the `gameId` after done with the nesting and spreading
+
+
+
+
 thenfrom each col_name, get rid of "NA" and "gameId"
 
 could just re-add gameId based on the home-away team names? separately?
 
+
+
 ```{r}
-anscombe
-anscombe %>%
- pivot_longer(everything(),
-   names_to = c(".value", "set"),
-   names_pattern = "(.)(.)"
- )
+edmonton_all <- cpl_permatch_df %>% 
+  filter(`teamFullName--Home` == "Edmonton" | `teamFullName--Away` == "Edmonton") %>% 
+  select(`teamFullName--Away`, `teamFullName--Home`, `Goal--Home`, `Goal--Away`, contains("NonPenxG")) %>% 
+  mutate(
+    team = "Edmonton",
+    opponent = case_when(
+      `teamFullName--Home` == "Edmonton" ~ `teamFullName--Away`,
+      `teamFullName--Away` == "Edmonton" ~ `teamFullName--Home`,
+      TRUE ~ NA_character_
+    ),
+    goal = case_when(
+      `teamFullName--Home` == "Edmonton" ~ `Goal--Home`,
+      `teamFullName--Away` == "Edmonton" ~ `Goal--Away`,
+    ),
+    goalAgainst = case_when(
+      `teamFullName--Home` == "Edmonton" ~ `Goal--Away`,
+      `teamFullName--Away` == "Edmonton" ~ `Goal--Home`,
+    ),
+    xG = case_when(
+      `teamFullName--Home` == "Edmonton" ~ `NonPenxG--Home`,
+      `teamFullName--Away` == "Edmonton" ~ `NonPenxG--Away`,
+    ),
+    xGA = case_when(
+      `teamFullName--Home` == "Edmonton" ~ `NonPenxG--Away`,
+      `teamFullName--Away` == "Edmonton" ~ `NonPenxG--Home`,
+    )) %>% 
+  select(-contains("--"))
+
+edmonton_all
 ```
+
+
+
+```{r}
+edmonton_all %>% 
+  mutate(across(-c(team, opponent), as.numeric)) %>% 
+  summarize(
+    tot_goal = sum(goal),
+    tot_goalAgainst = sum(goalAgainst),
+    tot_xG = sum(xG),
+    tot_xGA = sum(xGA),
+    team = unique(team)
+  )
+```
+
+
+iterate over ALL teams, combine and create league table
+
+
+
+
+
+
 
 
