@@ -14,3 +14,6 @@ ETL pipeline with the {googledrive} package and Github Actions.
 Please check out the [blog
 post](https://ryo-n7.github.io/2021-09-23-CanPL-GoogleDrive-GithubActions-Tutorial/)
 for full instructions\!
+
+**Update: Dec. 2021, paused the GHA workflow as the season is over and
+data won’t be updated until the new season starts\!**

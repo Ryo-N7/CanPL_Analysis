@@ -21,7 +21,8 @@ pacman::p_load(
   cowplot, patchwork,
   ggforce,
   rvest, polite,
-  googledrive
+  googledrive,
+  gt, gtExtras
 )
 
 extrafont::loadfonts()
@@ -198,6 +199,17 @@ cpl_team_pergame_2021 %>% select(sort(current_vars())) %>% glimpse()
 `.1` are duplicates...
 
 xG and other vars are in decimals BUT `*Pct` variables are CHARACTER with `%` symbol.....
+
+
+
+
+```{r}
+cpl_team_pergame_2021 %>% 
+  mutate(percpassfwd = str_remove_all(PctPassFwd, "%") %>% as.numeric() / 100)
+
+cpl_team_pergame_2021 %>% select(contains(".1")) %>% glimpse()
+```
+
 
 
 ```{r}
@@ -407,6 +419,21 @@ cpl_team_pergame_2021 %>%
 
 
 
+## start
+
+```{r}
+cpl_team_pergame_2021 <- read.csv(file = here::here("data/CPLTeamByGame2021.csv"))
+
+names(cpl_team_pergame_2021)
+
+glimpse(cpl_team_pergame_2021)
+```
+
+
+```{r}
+janitor::clean_names(cpl_team_pergame_2021) %>% names()
+```
+
 
 
 
@@ -456,7 +483,6 @@ cpl_permatch <- cpl_team_pergame_2021 %>%
   nest() %>% 
   mutate(data = map(data, ~ elongate_per_game(data = .x))) %>% 
   ungroup()
-
 ```
 
 ```{r}
@@ -544,6 +570,11 @@ create_league_table_row <- function(data, team) {
     W = sum(W),
     D = sum(D),
     L = sum(L)
+  ) %>% 
+  mutate(
+    Pts = (W * 3) + (D * 1) + (L * 0),
+    GD = goal - goalAgainst,
+    xGD = xG - xGA
   )
   
   return(league_table_row_df)
@@ -562,10 +593,53 @@ league_row_comb <- map(team_list,
 
 league_table_df <- reduce(league_row_comb, .f = bind_rows)
 
-league_table_df
+league_table_df %>% arrange(desc(Pts))
 ```
 
 
+```{r}
+library(gtExtras)
+
+league_table_df %>% 
+  arrange(desc(Pts)) %>% 
+  gt() %>% 
+  gt_plt_bullet(column = goal, target = xG, #width = 45,
+                keep_column = TRUE,
+                colors = c("red", "black"))
+```
+
+
+
+```{r}
+library(dplyr)
+library(tibble)
+library(gt)
+library(gtExtras)
+
+## bullet chart
+bullet_df <- tibble::rownames_to_column(mtcars) %>%
+ dplyr::select(rowname, cyl:drat, mpg) %>%
+ dplyr::group_by(cyl) %>%
+ dplyr::mutate(target_col = mean(mpg)) %>%
+ dplyr::slice_sample(n = 3) %>%
+ dplyr::ungroup() 
+
+bullet_df
+
+bullet_df %>%
+ gt() %>%
+ gt_plt_bullet(column = mpg, target = target_col, width = 45,
+               colors = c("lightblue", "black"))
+
+## inline bars
+mtcars %>%
+  dplyr::select(cyl:wt, mpg) %>% 
+  head() %>%
+  gt() %>%
+  gt_plt_bar(column = mpg, keep_column = TRUE, width = 35)
+
+sessionInfo()
+```
 
 
 
